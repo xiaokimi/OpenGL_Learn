@@ -10,6 +10,22 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Classes\Camera.h" />
+    <ClInclude Include="Classes\Controler.h" />
+    <ClInclude Include="Classes\mesh.h" />
+    <ClInclude Include="Classes\model.h" />
+    <ClInclude Include="Classes\Shader.h" />
+    <ClInclude Include="Classes\stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Classes\Camera.cpp" />
+    <ClCompile Include="Classes\Controler.cpp" />
+    <ClCompile Include="Classes\main.cpp" />
+    <ClCompile Include="Classes\mesh.cpp" />
+    <ClCompile Include="Classes\model.cpp" />
+    <ClCompile Include="Classes\Shader.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8EBF302E-15F3-4D55-9A67-08D337E1834C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -59,7 +75,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32sd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32sd.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,15 +96,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Shader.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
