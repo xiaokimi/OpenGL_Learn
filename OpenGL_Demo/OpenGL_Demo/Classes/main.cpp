@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 // GLEW
 #define GLEW_STATIC
@@ -57,8 +58,8 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	Shader cubeShader("Shader/Advance/cube.vs", "Shader/Advance/cube.frag");
-	Shader mirrorShader("Shader/Advance/mirror.vs", "Shader/Advance/mirror.frag");
+	Shader cubeShadr("Shader/Advance/cube.vs", "Shader/Advance/cube.frag");
+	Shader grassShader("Shader/Advance/blend.vs", "Shader/Advance/blend.frag");
 
 	GLfloat cubeVertices[] = {
 		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
@@ -104,20 +105,20 @@ int main()
 		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f
 	};
 
-	GLfloat mirrorVertices[] = {
-		-3.0f, 0.0f, 3.0f,
-		3.0f, 0.0f, 3.0f,
-		3.0f, 0.0f, -3.0f,
-
-		-3.0f, 0.0f, 3.0f,
-		3.0f, 0.0f, -3.0f,
-		-3.0f, 0.0f, -3.0f
+	GLfloat grassVertices[] = {
+		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+		 
+		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
 	};
 
 	GLuint cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
 	glBindVertexArray(cubeVAO);
-	
+
 	glGenBuffers(1, &cubeVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
@@ -128,21 +129,44 @@ int main()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(1);
 
-	glBindVertexArray(0);
+	GLuint grassVAO, grassVBO;
+	glGenVertexArrays(1, &grassVAO);
+	glBindVertexArray(grassVAO);
 
-	GLuint mirrorVAO, mirrorVBO;
-	glGenVertexArrays(1, &mirrorVAO);
-	glBindVertexArray(mirrorVAO);
+	glGenBuffers(1, &grassVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(grassVertices), grassVertices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &mirrorVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mirrorVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mirrorVertices), mirrorVertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(1);
+
 	glBindVertexArray(0);
 
+	GLuint grassTexture;
+	glGenTextures(1, &grassTexture);
+	glBindTexture(GL_TEXTURE_2D, grassTexture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int nWidth, nHeight, nrChannels;
+	stbi_set_flip_vertically_on_load(false);
+	unsigned char *data = stbi_load("Resource/Image/blending_transparent_window.png", &nWidth, &nHeight, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
 
 	GLuint cubeTexture;
 	glGenTextures(1, &cubeTexture);
@@ -153,9 +177,8 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	int nWidth, nHeight, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data = stbi_load("Resource/Image/container2.png", &nWidth, &nHeight, &nrChannels, 0);
+	data = stbi_load("Resource/Image/container2.png", &nWidth, &nHeight, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -169,10 +192,17 @@ int main()
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glEnable(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glEnable(GL_DEPTH_TEST);
+	std::vector<glm::vec3> windows;
+	windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+	windows.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+	windows.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+	windows.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+	windows.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	while (!glfwWindowShouldClose(window))
 	{
 		Controler::getInstance()->update();
@@ -180,64 +210,57 @@ int main()
 		Controler::getInstance()->doMovement();
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-		glStencilMask(0xff);
-		glStencilFunc(GL_ALWAYS, 1, 0xff);
-		mirrorShader.use();
-
-		glm::mat4 mirrorModel;
-		mirrorModel = glm::translate(mirrorModel, glm::vec3(0.0f, -1.0f, 0.0f));
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, WIDTH * 1.0f / HEIGHT, 0.1f, 100.0f);
 
-		mirrorShader.setUniformMatrix4fv("model", mirrorModel);
-		mirrorShader.setUniformMatrix4fv("view", view);
-		mirrorShader.setUniformMatrix4fv("projection", projection);
-
-		glBindVertexArray(mirrorVAO);
-		glDisable(GL_DEPTH_TEST);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glEnable(GL_DEPTH_TEST);
-
-		glStencilMask(0x00);
-		glStencilFunc(GL_EQUAL, 1, 0xff);
-		cubeShader.use();
-
+		cubeShadr.use();
 		glm::mat4 cubeModel;
-		cubeModel = glm::translate(cubeModel, glm::vec3(0.0f, -2.0f, 0.0f));
-		cubeModel = glm::scale(cubeModel, glm::vec3(1.0f, -1.0f, 1.0f));
+		cubeModel = glm::translate(cubeModel, glm::vec3(0.0f, 0.0f, -2.0f));
+		cubeShadr.setUniformMatrix4fv("model", cubeModel);
+		cubeShadr.setUniformMatrix4fv("view", view);
+		cubeShadr.setUniformMatrix4fv("projection", projection);
 
-		cubeShader.setUniformMatrix4fv("model", cubeModel);
-		cubeShader.setUniformMatrix4fv("view", view);
-		cubeShader.setUniformMatrix4fv("projection", projection);
-
-		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glStencilMask(0x00);
-		glStencilFunc(GL_ALWAYS, 1, 0xff);
-
-		cubeModel = glm::mat4();
-		cubeShader.setUniformMatrix4fv("model", cubeModel);
-
 		glBindVertexArray(cubeVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		grassShader.use();
+		grassShader.setUniformMatrix4fv("view", view);
+		grassShader.setUniformMatrix4fv("projection", projection);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, grassTexture);
+		glBindVertexArray(grassVAO);
+		
+		map<float, glm::vec3> sorted;
+		for (auto itr = windows.begin(); itr != windows.end(); ++itr)
+		{
+			float dis = glm::length(camera.Position - *itr);
+			sorted[dis] = *itr;
+		}
+
+		for (auto itr = sorted.rbegin(); itr != sorted.rend(); ++itr)
+		{
+			glm::mat4 grassModel;
+			grassModel = glm::translate(grassModel, itr->second);
+			grassShader.setUniformMatrix4fv("model", grassModel);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		
 		glBindVertexArray(0);
-
-		glStencilMask(0xff);
 
 		glfwSwapBuffers(window);
 	}
 
-	glDeleteVertexArrays(1, &cubeVAO);
-	glDeleteBuffers(1, &cubeVBO);
+	glDeleteVertexArrays(0, &grassVAO);
+	glDeleteBuffers(0, &grassVBO);
+
+	glDeleteVertexArrays(0, &cubeVAO);
+	glDeleteBuffers(0, &cubeVBO);
 
 	glfwTerminate();
 	return 0;
