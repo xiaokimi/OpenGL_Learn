@@ -21,6 +21,7 @@
 #include "Camera.h"
 #include "Controler.h"
 #include "model.h"
+#include "ThirdFunc.h"
 
 using namespace std;
 
@@ -58,72 +59,98 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	Shader cubeShadr("Shader/Advance/cube.vs", "Shader/Advance/cube.frag");
-	Shader screenShader("Shader/Advance/screen.vs", "Shader/Advance/screen.frag");
+	Shader skyboxShader("Shader/Advance/skybox.vs", "Shader/Advance/skybox.frag");
+	Shader cubeShader("Shader/Advance/cube.vs", "Shader/Advance/cube.frag");
 
+	#pragma region "object_initialization"
 	GLfloat cubeVertices[] = {
-		// Back face
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Bottom-left
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right
-		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, // bottom-right         
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		// Front face
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, // top-right
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, // top-right
-		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, // top-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
-		// Left face
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-right
-		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-left
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-right
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-right
-		// Right face
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-left
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right         
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-left
-		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left     
-		// Bottom face
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
-		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, // top-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-right
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
-		// Top face
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right     
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f  // bottom-left 
+		// Positions          // Texture Coords
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f
 	};
 
-	GLfloat grassVertices[] = {
-		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
-		 
-		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f
-	};
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
 
-	GLfloat quadVertices[] = {
-		-1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
 
-		-1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 0.0f, 1.0f
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f,
+		-1.0f, -1.0f, 1.0f,
+
+		-1.0f, 1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f
 	};
 
 	GLuint cubeVAO, cubeVBO;
@@ -142,124 +169,80 @@ int main()
 
 	glBindVertexArray(0);
 
-	GLuint quadVAO, quadVBO;
-	glGenVertexArrays(1, &quadVAO);
-	glBindVertexArray(quadVAO);
+	GLuint skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glBindVertexArray(skyboxVAO);
 
-	glGenBuffers(1, &quadVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	glGenBuffers(1, &skyboxVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)(2 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 
-	GLuint cubeTexture;
-	glGenTextures(1, &cubeTexture);
-	glBindTexture(GL_TEXTURE_2D, cubeTexture);
+	#pragma endregion
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	vector<const GLchar*> faces;
+	faces.push_back("Resource/Image/skybox/right.jpg");
+	faces.push_back("Resource/Image/skybox/left.jpg");
+	faces.push_back("Resource/Image/skybox/top.jpg");
+	faces.push_back("Resource/Image/skybox/bottom.jpg");
+	faces.push_back("Resource/Image/skybox/back.jpg");
+	faces.push_back("Resource/Image/skybox/front.jpg");
 
-	int nWidth, nHeight, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data = stbi_load("Resource/Image/container2.png", &nWidth, &nHeight, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
+	GLuint skyboxTexture = loadCubemap(faces, GL_RGB, GL_RGB);
 
-	GLuint framebuffer;
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-	GLuint textureColorbuffer;
-	glGenTextures(1, &textureColorbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-
-	GLuint rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER != GL_FRAMEBUFFER_COMPLETE))
-	{
-		cout << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << endl;
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GLuint cubeTexture = loadTexTure("Resource/Image/container2.png", GL_RGB, GL_RGBA, true);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window))
 	{
 		Controler::getInstance()->update();
 		glfwPollEvents();
 		Controler::getInstance()->doMovement();
 
-
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glEnable(GL_DEPTH_TEST);
 
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, WIDTH * 1.0f / HEIGHT, 0.1f, 100.0f);
 
-		cubeShadr.use();
-		glm::mat4 cubeModel;
-		cubeModel = glm::translate(cubeModel, glm::vec3(0.0f, 0.0f, -2.0f));
-		cubeShadr.setUniformMatrix4fv("model", cubeModel);
-		cubeShadr.setUniformMatrix4fv("view", view);
-		cubeShadr.setUniformMatrix4fv("projection", projection);
+		cubeShader.use();
+		glm::mat4 model;
+		
+		cubeShader.setUniformMatrix4fv("model", model);
+		cubeShader.setUniformMatrix4fv("view", view);
+		cubeShader.setUniformMatrix4fv("projection", projection);
 
+		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDisable(GL_DEPTH_TEST);
-		
-		screenShader.use();
-		glBindVertexArray(quadVAO);
-		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glDepthFunc(GL_LEQUAL);
+		skyboxShader.use();
+
+		skyboxShader.setUniformMatrix4fv("view", glm::mat4(glm::mat3(view)));
+		skyboxShader.setUniformMatrix4fv("projection", projection);
+
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+
+		glDepthFunc(GL_LESS);
 
 		glfwSwapBuffers(window);
 	}
 
-	glDeleteVertexArrays(1, &quadVAO);
-	glDeleteBuffers(1, &quadVBO);
-
-	glDeleteVertexArrays(1, &cubeVAO);
-	glDeleteBuffers(1, &cubeVBO);
-
-	glDeleteFramebuffers(1, &framebuffer);
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &skyboxVBO);
 
 	glfwTerminate();
 	return 0;

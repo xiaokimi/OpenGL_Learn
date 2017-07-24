@@ -17,6 +17,7 @@
     <ClInclude Include="Classes\model.h" />
     <ClInclude Include="Classes\Shader.h" />
     <ClInclude Include="Classes\stb_image.h" />
+    <ClInclude Include="Classes\ThirdFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Classes\Camera.cpp" />
@@ -25,6 +26,7 @@
     <ClCompile Include="Classes\mesh.cpp" />
     <ClCompile Include="Classes\model.cpp" />
     <ClCompile Include="Classes\Shader.cpp" />
+    <ClCompile Include="Classes\ThirdFunc.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8EBF302E-15F3-4D55-9A67-08D337E1834C}</ProjectGuid>
