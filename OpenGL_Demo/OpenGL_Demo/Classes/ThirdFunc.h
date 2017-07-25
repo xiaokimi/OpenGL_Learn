@@ -8,4 +8,6 @@ GLuint loadTexTure(const char *filename, GLint internalformat, GLint format, boo
 
 GLuint loadCubemap(std::vector<const GLchar*> faces, GLint internalformat, GLint format, bool fliptag = false);
 
+GLuint getBufferDataFromFile(const char *filename);
+
 #endif

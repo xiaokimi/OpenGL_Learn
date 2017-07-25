@@ -18,6 +18,7 @@ public:
 	unsigned int Program;
 
 	Shader(const GLchar *vertexPath, const GLchar *fragmentPath);
+	Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath);
 
 	void use();
 
@@ -27,6 +28,8 @@ public:
 
 	void setUniform3f(const std::string &name, glm::vec3 value);
 	void setUniformMatrix4fv(const std::string &name, glm::mat4 transform);
+
+	void setUniformBlockBindingIndex(const std::string &name, int bindingIndex);
 };
 
 #endif

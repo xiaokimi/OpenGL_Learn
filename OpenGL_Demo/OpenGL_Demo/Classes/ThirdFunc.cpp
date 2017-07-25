@@ -67,3 +67,36 @@ GLuint loadCubemap(vector<const GLchar*> faces, GLint internalformat, GLint form
 
 	return textureID;
 }
+
+GLuint getBufferDataFromFile(const char *filename)
+{
+	GLuint buffer;
+	FILE *f;
+	size_t filesize;
+
+	fopen_s(&f, filename, "rb");
+	if (f)
+	{
+		fseek(f, 0, SEEK_END);
+		filesize = ftell(f);
+
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, buffer);
+		glBufferData(GL_COPY_WRITE_BUFFER, (GLsizei)filesize, NULL, GL_STATIC_DRAW);
+
+		void *data = glMapBuffer(GL_COPY_WRITE_BUFFER, GL_WRITE_ONLY);
+		fread(data, 1, filesize, f);
+
+		glUnmapBuffer(GL_COPY_WRITE_BUFFER);
+
+		fclose(f);
+
+		return buffer;
+	}
+	else
+	{
+		std::cout << "READ FILE FAILED : " << filename << endl;
+	}
+	
+	return 0;
+}
