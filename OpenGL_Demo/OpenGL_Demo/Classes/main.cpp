@@ -107,10 +107,13 @@ int main()
 	};
 
 	GLfloat glslVertices[] = {
-		-0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f
+		0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
+
+		//0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		//0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+		//0.0f, 0.0f, 1.0f, 0.0f, 0.0f
 	};
 
 	GLuint glslVAO, glslVBO;
@@ -121,14 +124,18 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, glslVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glslVertices), glslVertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)(5 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 
+	GLuint cubeTexture = loadTexTure("Resource/Image/container2.png", GL_RGB, GL_RGBA, true);
 
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
@@ -152,8 +159,14 @@ int main()
 		glslShader.setUniformMatrix4fv("view", view);
 		glslShader.setUniformMatrix4fv("projection", projection);
 
+		glslShader.setFloat("time", glfwGetTime());
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		glslShader.setInt("texture1", 0);
+
 		glBindVertexArray(glslVAO);
-		glDrawArrays(GL_POINTS, 0, 4);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
