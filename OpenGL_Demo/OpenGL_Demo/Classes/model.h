@@ -16,10 +16,12 @@ class Model
 {
 public:
 	Model(GLchar* path);
-	void Draw(Shader shader);
+	void Draw(Shader shader, int instanceAmount = 0, bool useInstance = false);
 
 	vector<Mesh> meshes;
 	vector<Texture> textures_loaded;
+
+	void addInstanceMatrix(glm::mat4 *modelMatrix, int matrixAmout);
 private:
 	string directory;
 

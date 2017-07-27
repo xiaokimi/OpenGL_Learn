@@ -12,11 +12,19 @@ Model::Model(GLchar* path)
 	this->loadModel(path);
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(Shader shader, int instanceAmount /* = 0 */, bool useInstance /* = false */)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++)
 	{
-		this->meshes[i].Draw(shader);
+		this->meshes[i].Draw(shader, instanceAmount, useInstance);
+	}
+}
+
+void Model::addInstanceMatrix(glm::mat4 *modelMatrix, int matrixAmout)
+{
+	for (GLuint i = 0; i < this->meshes.size(); i++)
+	{
+		this->meshes[i].addInstanceMatrix(modelMatrix, matrixAmout);
 	}
 }
 
@@ -160,7 +168,13 @@ GLint TextureFromFile(const char* path, string directory)
 	unsigned char *data = stbi_load(filename.c_str(), &nWidth, &nHeight, &nrChannels, 0);
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		GLuint image_format = GL_RGBA;
+		if (nrChannels == 3)
+		{
+			image_format = GL_RGB;
+		}
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, image_format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else

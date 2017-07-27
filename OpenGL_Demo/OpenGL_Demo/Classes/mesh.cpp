@@ -35,7 +35,37 @@ void Mesh::setupMesh()
 	glBindVertexArray(0);
 }
 
-void Mesh::Draw(Shader shader)
+void Mesh::addInstanceMatrix(glm::mat4 *modelMatrix, int matrixAmount)
+{
+	glBindVertexArray(this->VAO);
+
+	GLuint matrixVBO;
+	glGenBuffers(1, &matrixVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, matrixVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, matrixAmount * sizeof(glm::mat4), &modelMatrix[0], GL_STATIC_DRAW);
+
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
+	glEnableVertexAttribArray(3);
+
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(4);
+
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(5);
+
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(6);
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	glBindVertexArray(0);
+}
+
+void Mesh::Draw(Shader shader, int instanceAmount /* = 0 */, bool useInstance /* = false */)
 {
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
@@ -63,7 +93,14 @@ void Mesh::Draw(Shader shader)
 	glUniform1f(glGetUniformLocation(shader.Program, "material.shininess"), 32.0f);
 
 	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	if (useInstance)
+	{
+		glDrawElementsInstanced(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0, instanceAmount);
+	}
+	else
+	{
+		glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	}
 	glBindVertexArray(0);
 
 	for (GLuint i = 0; i < this->textures.size(); i++)

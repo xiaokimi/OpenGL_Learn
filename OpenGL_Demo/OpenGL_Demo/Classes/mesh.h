@@ -37,10 +37,12 @@ public:
 	vector<Texture> textures;
 
 	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures);
-	void Draw(Shader shader);
+	void Draw(Shader shader, int instanceAmount = 0, bool useInstance = false);
 
-	GLuint VAO;
+	void addInstanceMatrix(glm::mat4 *modelMatrix, int matrixAmount);
+
 private:
+	GLuint VAO;
 	GLuint VBO, EBO;
 	
 	void setupMesh();

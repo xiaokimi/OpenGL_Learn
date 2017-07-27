@@ -59,83 +59,42 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	Shader glslShader("Shader/GLSL/glsl.vs", "Shader/GLSL/glsl.frag", "Shader/GLSL/glsl.geo");
+	Shader planetShader("Shader/GLSL/planet.vs", "Shader/GLSL/planet.frag");
+	Shader rockShader("Shader/GLSL/rock.vs", "Shader/GLSL/rock.frag");
 
-	float cubeVertices[] = {
-		// Back face
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Bottom-left
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right
-		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, // bottom-right         
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		// Front face
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, // top-right
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, // top-right
-		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, // top-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
-		// Left face
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-right
-		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-left
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-right
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-right
-		// Right face
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-left
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right         
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-left
-		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left     
-		// Bottom face
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
-		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, // top-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-right
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
-		// Top face
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right     
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f  // bottom-left        
-	};
+	Model planetModel("Resource/Model/planet/planet.obj");
+	Model rockModel("Resource/Model/rock/rock.obj");
 
-	GLfloat glslVertices[] = {
-		0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f
+	// 
+	srand(glfwGetTime());
+	int rockAmount = 10000;
+	glm::mat4 *rockModelMatrix = new glm::mat4[rockAmount];
 
-		//0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		//0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-		//0.0f, 0.0f, 1.0f, 0.0f, 0.0f
-	};
+	float radius = 50.0f;
+	float offset = 5.0f;
+	for (int i = 0; i < rockAmount; i++)
+	{
+		glm::mat4 model;
+		
+		GLfloat angle = glm::radians((GLfloat)i / (GLfloat)rockAmount * 360.0f);
+		GLfloat displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+		GLfloat x = sin(angle) * radius + displacement;
+		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+		GLfloat y = displacement * 0.4f; 
+		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+		GLfloat z = cos(angle) * radius + displacement;
+		model = glm::translate(model, glm::vec3(x, y, z));
+		
+		GLfloat scale = (rand() % 20) / 100.0f + 0.05;
+		model = glm::scale(model, glm::vec3(scale));
+		
+		GLfloat rotAngle = glm::radians((rand() % 360) * 1.0f);
+		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+		
+		rockModelMatrix[i] = model;
+	}
 
-	GLuint glslVAO, glslVBO;
-	glGenVertexArrays(1, &glslVAO);
-	glBindVertexArray(glslVAO);
-
-	glGenBuffers(1, &glslVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, glslVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glslVertices), glslVertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*)(5 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(2);
-
-	glBindVertexArray(0);
-
-	GLuint cubeTexture = loadTexTure("Resource/Image/container2.png", GL_RGB, GL_RGBA, true);
+	float a = sin(glm::radians(90.0f));
 
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
@@ -149,31 +108,28 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glslShader.use();
-
 		glm::mat4 model;
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, WIDTH * 1.0f / HEIGHT, 0.1f, 100.0f);
 
-		glslShader.setUniformMatrix4fv("model", model);
-		glslShader.setUniformMatrix4fv("view", view);
-		glslShader.setUniformMatrix4fv("projection", projection);
+		planetShader.use();
+		planetShader.setUniformMatrix4fv("model", model);
+		planetShader.setUniformMatrix4fv("view", view);
+		planetShader.setUniformMatrix4fv("projection", projection);
 
-		glslShader.setFloat("time", glfwGetTime());
+		planetModel.Draw(planetShader);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		glslShader.setInt("texture1", 0);
+		rockShader.use();
+		rockShader.setUniformMatrix4fv("view", view);
+		rockShader.setUniformMatrix4fv("projection", projection);
 
-		glBindVertexArray(glslVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+		rockModel.addInstanceMatrix(rockModelMatrix, rockAmount);
+		rockModel.Draw(rockShader, rockAmount, true);
 
 		glfwSwapBuffers(window);
 	}
 
-	glDeleteVertexArrays(1, &glslVAO);
-	glDeleteBuffers(1, &glslVBO);
+	delete[] rockModelMatrix;
 
 	glfwTerminate();
 	return 0;
