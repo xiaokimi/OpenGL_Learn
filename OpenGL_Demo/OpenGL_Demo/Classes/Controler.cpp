@@ -153,6 +153,11 @@ void Controler::cursorPositionCallback(GLFWwindow *window, double xpos, double y
 	}
 }
 
+bool Controler::getKeyState(int key)
+{
+	return _keys[key];
+}
+
 void Controler::scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
 	_camera->ProcessMouseScroll(yoffset);

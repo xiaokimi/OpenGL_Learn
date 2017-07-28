@@ -30,6 +30,7 @@ public:
 	void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos);
 	void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 
+	bool getKeyState(int key);
 private:
 	bool _keys[1024];
 	Camera *_camera;
