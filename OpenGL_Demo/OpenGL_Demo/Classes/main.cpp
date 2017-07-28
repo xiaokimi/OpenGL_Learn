@@ -59,42 +59,143 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	Shader planetShader("Shader/GLSL/planet.vs", "Shader/GLSL/planet.frag");
-	Shader rockShader("Shader/GLSL/rock.vs", "Shader/GLSL/rock.frag");
+	Shader cubeShader("Shader/GLSL/cube.vs", "Shader/GLSL/cube.frag");
+	Shader screenShader("Shader/GLSL/screen.vs", "Shader/GLSL/screen.frag");
 
-	Model planetModel("Resource/Model/planet/planet.obj");
-	Model rockModel("Resource/Model/rock/rock.obj");
+	GLfloat cubeVertices[] = {
 
-	// 
-	srand(glfwGetTime());
-	int rockAmount = 10000;
-	glm::mat4 *rockModelMatrix = new glm::mat4[rockAmount];
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f,         
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
 
-	float radius = 50.0f;
-	float offset = 5.0f;
-	for (int i = 0; i < rockAmount; i++)
-	{
-		glm::mat4 model;
-		
-		GLfloat angle = glm::radians((GLfloat)i / (GLfloat)rockAmount * 360.0f);
-		GLfloat displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat x = sin(angle) * radius + displacement;
-		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat y = displacement * 0.4f; 
-		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat z = cos(angle) * radius + displacement;
-		model = glm::translate(model, glm::vec3(x, y, z));
-		
-		GLfloat scale = (rand() % 20) / 100.0f + 0.05;
-		model = glm::scale(model, glm::vec3(scale));
-		
-		GLfloat rotAngle = glm::radians((rand() % 360) * 1.0f);
-		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
-		
-		rockModelMatrix[i] = model;
-	}
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
 
-	float a = sin(glm::radians(90.0f));
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,        
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f,    
+
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f 
+	};
+
+	GLfloat screenVertices[] = {
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+
+		1.0f, 1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f
+	};
+
+	GLuint cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glBindVertexArray(cubeVAO);
+
+	glGenBuffers(1, &cubeVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+
+	GLuint framebuffer;
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	GLuint textureColor;
+	glGenTextures(1, &textureColor);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureColor);
+
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, WIDTH, HEIGHT, GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureColor, 0);
+
+
+	GLuint RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	GLuint screenVAO, screenVBO;
+	glGenVertexArrays(1, &screenVAO);
+	glBindVertexArray(screenVAO);
+
+	glGenBuffers(1, &screenVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), screenVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)(2 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	GLuint screenFBO;
+	glGenFramebuffers(1, &screenFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
+
+	GLuint screenTexture;
+	glGenTextures(1, &screenTexture);
+	glBindTexture(GL_TEXTURE_2D, screenTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
@@ -105,31 +206,52 @@ int main()
 		glfwPollEvents();
 		Controler::getInstance()->doMovement();
 
+
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 
 		glm::mat4 model;
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, WIDTH * 1.0f / HEIGHT, 0.1f, 100.0f);
 
-		planetShader.use();
-		planetShader.setUniformMatrix4fv("model", model);
-		planetShader.setUniformMatrix4fv("view", view);
-		planetShader.setUniformMatrix4fv("projection", projection);
+		cubeShader.use();
 
-		planetModel.Draw(planetShader);
+		cubeShader.setUniformMatrix4fv("model", model);
+		cubeShader.setUniformMatrix4fv("view", view);
+		cubeShader.setUniformMatrix4fv("projection", projection);
 
-		rockShader.use();
-		rockShader.setUniformMatrix4fv("view", view);
-		rockShader.setUniformMatrix4fv("projection", projection);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
 
-		rockModel.addInstanceMatrix(rockModelMatrix, rockAmount);
-		rockModel.Draw(rockShader, rockAmount, true);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, screenFBO);
+		glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		screenShader.use();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, screenTexture);
+		screenShader.setInt("texture1", 0);
+
+		glBindVertexArray(screenVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 	}
 
-	delete[] rockModelMatrix;
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVBO);
+
+	glDeleteFramebuffers(1, &framebuffer);
 
 	glfwTerminate();
 	return 0;
