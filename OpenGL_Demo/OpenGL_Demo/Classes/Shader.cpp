@@ -68,7 +68,7 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath)
 	if (!success)
 	{
 		glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << std::endl;
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
 	glDeleteShader(vertex);
@@ -164,7 +164,7 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLcha
 	if (!success)
 	{
 		glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << std::endl;
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
 	glDeleteShader(vertex);
@@ -202,6 +202,12 @@ void Shader::setUniformMatrix4fv(const std::string &name, glm::mat4 transform)
 {
 	GLuint uniformLoc = glGetUniformLocation(this->Program, name.c_str());
 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+}
+
+void Shader::setUniform3fv(const std::string &name, int nCount, const GLfloat *value)
+{
+	GLuint uniformLoc = glGetUniformLocation(this->Program, name.c_str());
+	glUniform3fv(uniformLoc, nCount, value);
 }
 
 void Shader::setUniformBlockBindingIndex(const std::string &name, int bindingIndex)
