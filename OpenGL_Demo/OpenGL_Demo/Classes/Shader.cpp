@@ -68,7 +68,7 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath)
 	if (!success)
 	{
 		glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << std::endl;
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
 	glDeleteShader(vertex);
@@ -164,7 +164,7 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLcha
 	if (!success)
 	{
 		glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << std::endl;
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
 	glDeleteShader(vertex);
