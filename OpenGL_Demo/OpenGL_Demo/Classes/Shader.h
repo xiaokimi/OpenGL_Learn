@@ -29,6 +29,8 @@ public:
 	void setUniform3f(const std::string &name, glm::vec3 value);
 	void setUniformMatrix4fv(const std::string &name, glm::mat4 transform);
 
+	void setUniform3fv(const std::string &name, int nCount, const GLfloat *value);
+
 	void setUniformBlockBindingIndex(const std::string &name, int bindingIndex);
 };
 
