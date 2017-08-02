@@ -31,7 +31,7 @@ void Model::addInstanceMatrix(glm::mat4 *modelMatrix, int matrixAmout)
 void Model::loadModel(string path)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -79,6 +79,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		vec.z = mesh->mNormals[i].z;
 		vertex.Normal = vec;
 
+		vec.x = mesh->mTangents[i].x;
+		vec.y = mesh->mTangents[i].y;
+		vec.z = mesh->mTangents[i].z;
+		vertex.Tangent = vec;
+
 		if (mesh->mTextureCoords[0])
 		{
 			glm::vec2 vec;
@@ -111,6 +116,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 		vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	
+		vector<Texture> normalMaps = this->loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 	}
 
 	return Mesh(vertices, indices, textures);
