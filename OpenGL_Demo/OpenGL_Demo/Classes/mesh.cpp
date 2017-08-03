@@ -32,6 +32,12 @@ void Mesh::setupMesh()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
 
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Tangent));
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, BiTangent));
+
 	glBindVertexArray(0);
 }
 
@@ -69,6 +75,7 @@ void Mesh::Draw(Shader shader, int instanceAmount /* = 0 */, bool useInstance /*
 {
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
+	GLuint normalNr = 1;
 
 	for (GLuint i = 0; i < this->textures.size(); i++)
 	{
@@ -82,6 +89,8 @@ void Mesh::Draw(Shader shader, int instanceAmount /* = 0 */, bool useInstance /*
 			ss << diffuseNr++;
 		else if (name == "texture_specular")
 			ss << specularNr++;
+		else if (name == "texture_normal")
+			ss << normalNr++;
 
 		number = ss.str();
 
