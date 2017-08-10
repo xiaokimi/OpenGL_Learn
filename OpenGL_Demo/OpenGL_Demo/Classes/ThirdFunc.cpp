@@ -100,3 +100,28 @@ GLuint getBufferDataFromFile(const char *filename)
 	
 	return 0;
 }
+
+void calcTangent(glm::vec3 *positions, glm::vec2 *texCoords, glm::vec3 &tangent, glm::vec3 &bitangent)
+{
+	// Shortcuts for vertices
+	glm::vec3 & v0 = positions[0];
+	glm::vec3 & v1 = positions[1];
+	glm::vec3 & v2 = positions[2];
+
+	// Shortcuts for UVs
+	glm::vec2 & uv0 = texCoords[0];
+	glm::vec2 & uv1 = texCoords[1];
+	glm::vec2 & uv2 = texCoords[2];
+
+	// Edges of the triangle : postion delta
+	glm::vec3 deltaPos1 = v1 - v0;
+	glm::vec3 deltaPos2 = v2 - v0;
+
+	// UV delta
+	glm::vec2 deltaUV1 = uv1 - uv0;
+	glm::vec2 deltaUV2 = uv2 - uv0;
+
+	float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+	tangent = glm::normalize((deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r);
+	bitangent = glm::normalize((deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r);
+}
