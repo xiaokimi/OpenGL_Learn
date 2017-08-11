@@ -59,8 +59,9 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	Shader wallShader("Shader/Texture/depthMap.vs", "Shader/Texture/depthMap.frag");
-
+	Shader cubeShader("Shader/Texture/HDRcube.vs", "Shader/Texture/HDRcube.frag");
+	Shader screenShader("Shader/Texture/screen.vs", "Shader/Texture/screen.frag");
+	Shader lightShader("Shader/Texture/light.vs", "Shader/Texture/light.frag");
 
 #pragma region "cube vetices"
 	GLfloat cubeVertices[] = {
@@ -106,6 +107,16 @@ int main()
 		0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
 		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,// top-left
 		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f // bottom-left  
+	};
+
+	GLfloat screenVertices[] = {
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f
 	};
 
 	GLfloat floorVertices[] = {
@@ -175,36 +186,90 @@ int main()
 
 #pragma endregion
 
-	GLuint wallVAO, wallVBO;
-	glGenVertexArrays(1, &wallVAO);
-	glBindVertexArray(wallVAO);
+	GLuint cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glBindVertexArray(cubeVAO);
 
-	glGenBuffers(1, &wallVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, wallVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(wallVertices), wallVertices, GL_STATIC_DRAW);
+	glGenBuffers(1, &cubeVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(3);
+	glBindVertexArray(0);
 
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(GLfloat), (GLvoid*)(11 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(4);
+	GLuint screenVAO, screenVBO;
+	glGenVertexArrays(1, &screenVAO);
+	glBindVertexArray(screenVAO);
 
-	GLuint diffTexture = loadTexTure("Resource/Image/bricks2.jpg", GL_RGB, GL_RGB);
-	GLuint normalTexture = loadTexTure("Resource/Image/bricks2_normal.jpg", GL_RGB, GL_RGB);
-	GLuint dispTexture = loadTexTure("Resource/Image/bricks2_disp.jpg", GL_RGB, GL_RGB);
+	glGenBuffers(1, &screenVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), screenVertices, GL_STATIC_DRAW);
 
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
 
-	GLfloat heightScale = 1.0f;
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	GLuint cubeTexture = loadTexTure("Resource/Image/wood.png", GL_RGB, GL_RGB);
+
+	GLuint FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	GLuint textureColor;
+	glGenTextures(1, &textureColor);
+	glBindTexture(GL_TEXTURE_2D, textureColor);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureColor, 0);
+
+	GLuint RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER != GL_FRAMEBUFFER_COMPLETE))
+	{
+		cout << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	std::vector<glm::vec3> lightPositions;
+	lightPositions.push_back(glm::vec3(0.0f, 0.0f, 49.5f)); // back light
+	lightPositions.push_back(glm::vec3(-1.4f, -1.9f, 9.0f));
+	lightPositions.push_back(glm::vec3(0.0f, -1.8f, 4.0f));
+	lightPositions.push_back(glm::vec3(0.8f, -1.7f, 6.0f));
+	// - Colors
+	std::vector<glm::vec3> lightColors;
+	lightColors.push_back(glm::vec3(50.0f, 50.0f, 50.0f));
+	lightColors.push_back(glm::vec3(0.1f, 0.0f, 0.0f));
+	lightColors.push_back(glm::vec3(0.0f, 0.0f, 0.2f));
+	lightColors.push_back(glm::vec3(0.0f, 0.1f, 0.0f));
+
+	GLfloat exposure = 1.0f;
+
 
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
@@ -215,52 +280,87 @@ int main()
 		glfwPollEvents();
 		Controler::getInstance()->doMovement();
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		{
-			if (heightScale > 0.0f)
-				heightScale -= 0.005f;
+			if (exposure > 0.0f)
+				exposure -= 0.01f;
 			else
-				heightScale = 0.0f;
+				exposure = 0.0f;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		{
-			if (heightScale < 1.0f)
-				heightScale += 0.005f;
+			if (exposure < 10.0f)
+				exposure += 0.01f;
 			else
-				heightScale = 1.0f;
+				exposure = 1.0f;
 		}
 
+
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 25.0));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 55.0f));
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), WIDTH * 1.0f / HEIGHT, 0.1f, 100.0f);
 
-		wallShader.use();
-		wallShader.setUniformMatrix4fv("model", model);
-		wallShader.setUniformMatrix4fv("view", view);
-		wallShader.setUniformMatrix4fv("projection", projection);
+		cubeShader.use();
+		cubeShader.setUniformMatrix4fv("model", model);
+		cubeShader.setUniformMatrix4fv("view", view);
+		cubeShader.setUniformMatrix4fv("projection", projection);
 
-		wallShader.setUniform3f("lightPos", lightPos);
-		wallShader.setUniform3f("viewPos", camera.Position);
+		cubeShader.setUniform3f("viewPos", camera.Position);
 
-		wallShader.setFloat("heightScale", heightScale);
-		wallShader.setBool("useDepthMap", Controler::getInstance()->getKeyState(GLFW_KEY_P));
+		for (int i = 0; i < 4; i++)
+		{
+			char lightPos[20];
+			char lightColor[20];
+
+			sprintf_s(lightPos, 20, "lightPositions[%d]", i);
+			sprintf_s(lightColor, 20, "lightColors[%d]", i);
+
+			cubeShader.setUniform3f(lightPos, lightPositions[i]);
+			cubeShader.setUniform3f(lightColor, lightColors[i]);
+		}
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffTexture);
-		wallShader.setInt("textureMap", 0);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		cubeShader.setInt("textureMap", 0);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, normalTexture);
-		wallShader.setInt("normalMap", 1);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
 
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, dispTexture);
-		wallShader.setInt("depthMap", 2);
+		glm::mat4 lightModel;
+		lightModel = glm::translate(lightModel, lightPositions[0]);
+		lightModel = glm::scale(lightModel, glm::vec3(0.1f));
 
-		glBindVertexArray(wallVAO);
+		lightShader.use();
+		lightShader.setUniformMatrix4fv("model", lightModel);
+		lightShader.setUniformMatrix4fv("view", view);
+		lightShader.setUniformMatrix4fv("projection", projection);
+
+		lightShader.setUniform3f("lightColor", lightColors[0]);
+
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		screenShader.use();
+
+		screenShader.setFloat("exposure", exposure);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureColor);
+		cubeShader.setInt("textureMap", 0);
+
+		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 
