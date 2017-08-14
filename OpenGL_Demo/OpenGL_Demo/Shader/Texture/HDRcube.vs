@@ -22,7 +22,7 @@ void main()
 	vs_out.TexCoords = texCoords;
 	
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
-	vs_out.Normal = normalize(normalMatrix * -normal);
+	vs_out.Normal = normalize(normalMatrix * normal);
 
 	vs_out.FragPos = vec3(model * vec4(position, 1.0f));
 }

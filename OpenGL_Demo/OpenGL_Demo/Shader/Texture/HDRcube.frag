@@ -1,14 +1,14 @@
 #version 330 core
 
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
 in VS_OUT 
 {
 	vec2 TexCoords;
 	vec3 Normal;
 	vec3 FragPos;
 } fs_in;
-
-
-out vec4 color;
 
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
@@ -48,5 +48,11 @@ void main()
 		lighting += calculight(lightPositions[i], lightColors[i]);
 	}
 
-	color = vec4(ambient + lighting * texColor.rgb, 1.0f);
+	vec3 result = ambient + lighting * texColor.rgb;
+
+	float brightness = dot(result, vec3(0.2126f, 0.7152f, 0.0722f));
+	if (brightness > 1.0f)
+		BrightColor = vec4(result, 1.0f);
+
+	FragColor = vec4(result, 1.0f);
 }
