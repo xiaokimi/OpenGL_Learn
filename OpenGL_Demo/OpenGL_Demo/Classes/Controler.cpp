@@ -44,6 +44,7 @@ Controler::~Controler()
 	if (_controler)
 	{
 		delete _controler;
+		_controler = nullptr;
 	}
 }
 
@@ -156,6 +157,11 @@ void Controler::cursorPositionCallback(GLFWwindow *window, double xpos, double y
 bool Controler::getKeyState(int key)
 {
 	return _keys[key];
+}
+
+float Controler::getDeltaTime()
+{
+	return _deltaTime;
 }
 
 void Controler::scrollCallback(GLFWwindow *window, double xoffset, double yoffset)

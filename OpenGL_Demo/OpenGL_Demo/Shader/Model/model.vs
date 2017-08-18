@@ -28,8 +28,8 @@ void main()
 	vs_out.FragPos = vec3(model * vec4(position, 1.0f));
 	vs_out.Normal = transpose(inverse(mat3(model))) * normal;
 
-	vec3 T = normalize(vec3(model * vec4(tangent, 1.0f)));
-	vec3 N = normalize(vec3(model * vec4(normal, 1.0f)));
-	vec3 B = normalize(vec3(model * vec4(bitangent, 1.0f)));
+	vec3 T = normalize(mat3(model) * tangent);
+	vec3 N = normalize(mat3(model) * normal);
+	vec3 B = normalize(mat3(model) * bitangent);
 	vs_out.TBN = mat3(T, B, N);
 }

@@ -16,9 +16,6 @@ public:
 
 	static Controler *getInstance();
 
-	Controler();
-	~Controler();
-
 	void init(GLFWwindow *window, Camera *camera);
 
 	void update();
@@ -31,6 +28,12 @@ public:
 	void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 
 	bool getKeyState(int key);
+	float getDeltaTime();
+
+protected:
+	Controler();
+	~Controler();
+
 private:
 	bool _keys[1024];
 	Camera *_camera;

@@ -52,6 +52,8 @@ void main()
 	vec4 specularColor = texture(material.texture_specular1, fs_in.TexCoords);
 	vec4 specular = spec * specularColor;
 
-	color = ambient + diffuse + specular;
+	//color = ambient + diffuse + specular;
 	//color = texture(material.texture_normal1, fs_in.TexCoords);
+
+	color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 }
