@@ -69,7 +69,7 @@ int main()
 	Shader modelShader("Shader/Test/model.vs", "Shader/Test/model.frag");
 	Shader cubeShader("Shader/Test/screen.vs", "Shader/Test/screen.frag");
 
-	Model nanosuitModel("Resource/Model/nanosuit/nanosuit.obj");
+	//Model nanosuitModel("Resource/Model/nanosuit/nanosuit.obj");
 
 	glm::mat4 textProjection = glm::ortho(0.0f, static_cast<GLfloat>(WIDTH), 0.0f, static_cast<GLfloat>(HEIGHT));
 	shader.use();
@@ -146,16 +146,17 @@ int main()
 		modelShader.setUniform3f("viewPos", camera.Position);
 		modelShader.setUniform3f("lightPos", glm::vec3(1.0f));
 
-		nanosuitModel.addInstanceMatrix(modelMatrix, 100);
-		nanosuitModel.Draw(modelShader, 100, true);
+		//nanosuitModel.addInstanceMatrix(modelMatrix, 100);
+		//nanosuitModel.Draw(modelShader, 100, true);
 		/*for (int i = 0; i < 100; i++)
 		{
 			modelShader.setUniformMatrix4fv("model", modelMatrix[i]);
 			nanosuitModel.Draw(modelShader);
 		}*/
 
-
+		glEnable(GL_BLEND);
 		showFPS(shader);
+		glDisable(GL_BLEND);
 
 		/*cubeShader.use();
 
@@ -189,5 +190,5 @@ void showFPS(Shader &shader)
 	char fpsStr[10];
 	sprintf_s(fpsStr, 10, "FPS:%2d", (int)fps);
 
-	Text::getInstance()->RenderText(shader, fpsStr, glm::vec2(25.0f, 25.0f), glm::vec2(0.5f), glm::vec3(1.0f));
+	Text::getInstance()->RenderText(shader, L"显示中文了ads", glm::vec2(25.0f, 25.0f), glm::vec2(2.0f), glm::vec3(1.0f, 0.2f, 0.5f));
 }

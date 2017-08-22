@@ -1,6 +1,8 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
+#include <windows.h>
+
 #include <iostream>
 #include <string>
 #include <map>
@@ -10,11 +12,14 @@
 
 #include <glm/glm.hpp>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "Shader.h"
 
 struct Character
 {
-	GLuint TextureID;
+	glm::ivec2 Position;
 	glm::ivec2 Size;
 	glm::ivec2 Bearing;
 	GLuint Advance;
@@ -25,16 +30,24 @@ class Text
 public:
 	static Text *getInstance();
 
-	void init();
+	void init(const char* fontFile = "Resource/Fonts/STFANGSO.TTF", int fontSize = 24);
 
-	void RenderText(Shader &shader, std::string text, glm::vec2 position, glm::vec2 scale, glm::vec3 color);
+	void RenderText(Shader &shader, wchar_t* textStr, glm::vec2 position, glm::vec2 scale, glm::vec3 color);
 protected:
 	Text();
 	~Text();
 
+	Character* getCharacter(wchar_t ch);
 private:
-	GLuint VAO, VBO;
-	std::map<GLchar, Character> Characters;
+	GLuint VAO, VBO, TextureID;
+
+	FT_Library _library;
+	FT_Face _face;
+
+	int _xStart;
+	int _yStart;
+	int _fontSize;
+	std::map<wchar_t, Character> Characters;
 };
 
 #endif
