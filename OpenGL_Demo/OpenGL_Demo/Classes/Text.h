@@ -32,13 +32,26 @@ public:
 
 	void init(const char* fontFile = "Resource/Fonts/STFANGSO.TTF", int fontSize = 24);
 
-	void RenderText(Shader &shader, wchar_t* textStr, glm::vec2 position, glm::vec2 scale, glm::vec3 color);
+	void RenderText(char* str, glm::vec2 position, glm::vec2 scale, glm::vec3 color);
 protected:
 	Text();
 	~Text();
 
 	Character* getCharacter(wchar_t ch);
+
+	// char/w_char convert
 private:
+	wchar_t* charToWchar(char* c);
+
+	char* wcharToChar(wchar_t* wc);
+
+	void release();
+
+	char* m_char;
+	wchar_t* m_wchar;
+private:
+	Shader _textShader;
+
 	GLuint VAO, VBO, TextureID;
 
 	FT_Library _library;

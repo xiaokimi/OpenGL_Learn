@@ -17,6 +17,7 @@ class Shader
 public:
 	unsigned int Program;
 
+	Shader();
 	Shader(const GLchar *vertexPath, const GLchar *fragmentPath);
 	Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath);
 
@@ -26,7 +27,9 @@ public:
 	void setInt(const std::string &name, int value) const;
 	void setFloat(const std::string &name, float value) const;
 
+	void setUniform2f(const std::string &name, glm::vec2 value);
 	void setUniform3f(const std::string &name, glm::vec3 value);
+	void setUniform4f(const std::string &name, glm::vec4 value);
 	void setUniformMatrix4fv(const std::string &name, glm::mat4 transform);
 
 	void setUniform3fv(const std::string &name, int nCount, const GLfloat *value);

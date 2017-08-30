@@ -1,5 +1,10 @@
 #include "Shader.h"
 
+Shader::Shader()
+{
+
+}
+
 Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath)
 {
 	std::string vertexCode;
@@ -192,10 +197,22 @@ void Shader::setFloat(const std::string &name, float value) const
 	glUniform1f(glGetUniformLocation(this->Program, name.c_str()), value);
 }
 
+void Shader::setUniform2f(const std::string &name, glm::vec2 value)
+{
+	GLuint uniformLoc = glGetUniformLocation(this->Program, name.c_str());
+	glUniform2f(uniformLoc, value.x, value.y);
+}
+
 void Shader::setUniform3f(const std::string &name, glm::vec3 value)
 {
 	GLuint uniformLoc = glGetUniformLocation(this->Program, name.c_str());
 	glUniform3f(uniformLoc, value.x, value.y, value.z);
+}
+
+void Shader::setUniform4f(const std::string &name, glm::vec4 value)
+{
+	GLuint uniformLoc = glGetUniformLocation(this->Program, name.c_str());
+	glUniform4f(uniformLoc, value.x, value.y, value.z, value.w);
 }
 
 void Shader::setUniformMatrix4fv(const std::string &name, glm::mat4 transform)

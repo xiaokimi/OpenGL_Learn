@@ -8,7 +8,11 @@
 
 #include "Controler.h"
 
+#include "Game.h"
+
 using namespace std;
+
+extern Game Breakout;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mode);
@@ -172,6 +176,7 @@ void Controler::scrollCallback(GLFWwindow *window, double xoffset, double yoffse
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode)
 {
 	Controler::getInstance()->keyCallback(window, key, scancode, action, mode);
+	Breakout.keyCallback(key, scancode, action, mode);
 }
 
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mode)

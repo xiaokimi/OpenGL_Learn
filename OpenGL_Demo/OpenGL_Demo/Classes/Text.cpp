@@ -1,4 +1,5 @@
 #include "Text.h"
+#include "ResourceManager.h"
 
 using namespace std;
 
@@ -17,7 +18,7 @@ Text *Text::getInstance()
 Text::Text()
 : _xStart(0)
 , _yStart(0)
-, _fontSize(48)
+, _fontSize(24)
 {
 
 }
@@ -31,11 +32,21 @@ Text::~Text()
 
 		FT_Done_Face(_face);
 		FT_Done_FreeType(_library);
+
+		glDeleteBuffers(1, &VBO);
+		glDeleteVertexArrays(1, &VAO);
 	}
+
+	release();
 }
 
 void Text::init(const char* fontFile /* = "Resource/Fonts/STFANGSO.TTF" */, int fontSize /* = 24 */)
 {
+	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
+	this->_textShader = ResourceManager::loadShader("Shader/2DGame/fonts.vs", "Shader/2DGame/fonts.frag", nullptr, "text");
+	this->_textShader.use();
+	this->_textShader.setUniformMatrix4fv("projection", projection);
+
 	_fontSize = fontSize;
 
 	if (FT_Init_FreeType(&_library))
@@ -90,8 +101,9 @@ void Text::init(const char* fontFile /* = "Resource/Fonts/STFANGSO.TTF" */, int 
 	glBindVertexArray(0);
 }
 
-void Text::RenderText(Shader &shader, wchar_t* textStr, glm::vec2 position, glm::vec2 scale, glm::vec3 color)
+void Text::RenderText(char* str, glm::vec2 position, glm::vec2 scale, glm::vec3 color)
 {
+	Shader &shader = this->_textShader;
 	shader.use();
 	shader.setUniform3f("textColor", color);
 
@@ -105,6 +117,7 @@ void Text::RenderText(Shader &shader, wchar_t* textStr, glm::vec2 position, glm:
 
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 
+	wchar_t *textStr = charToWchar(str);
 	size_t nLen = wcslen(textStr);
 	for (int i = 0; i < nLen; i++)
 	{
@@ -201,4 +214,41 @@ Character* Text::getCharacter(wchar_t ch)
 	}
 
 	return &Characters[ch];
+}
+
+void Text::release()
+{
+	if (m_char)
+	{
+		delete m_char;
+		m_char = nullptr;
+	}
+
+	if (m_wchar)
+	{
+		delete m_wchar;
+		m_wchar = nullptr;
+	}
+}
+
+char* Text::wcharToChar(wchar_t* wc)
+{
+	release();
+
+	int len = WideCharToMultiByte(CP_ACP, 0, wc, wcslen(wc), NULL, 0, NULL, NULL);
+	m_char = new char[len + 1];
+	WideCharToMultiByte(CP_ACP, 0, wc, wcslen(wc), m_char, len, NULL, NULL);
+	m_char[len] = '\0';
+	return m_char;
+}
+
+wchar_t* Text::charToWchar(char* c)
+{
+	release();
+
+	int len = MultiByteToWideChar(CP_ACP, 0, c, strlen(c), NULL, 0);
+	m_wchar = new wchar_t[len + 1];
+	MultiByteToWideChar(CP_ACP, 0, c, strlen(c), m_wchar, len);
+	m_wchar[len] = '\0';
+	return m_wchar;
 }
