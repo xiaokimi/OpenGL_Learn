@@ -25,6 +25,7 @@
 #include "Text.h"
 #include "Game.h"
 #include "ResourceManager.h"
+#include <fmod/fmod.hpp>
 
 using namespace std;
 
@@ -63,7 +64,40 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	Breakout.init();
+	//Breakout.init();
+
+	FMOD::System *system;
+	FMOD::Sound *sound;
+	FMOD::Channel *channel = 0;
+	
+	void *buff = 0;
+	int length = 0;
+	
+	FMOD_CREATESOUNDEXINFO exinfo;
+
+	FMOD::DSP *dsp;
+	float frequency = 0;
+
+	FMOD::System_Create(&system);
+	system->init(32, FMOD_INIT_NORMAL, 0);
+	
+	//system->createSound("Resource/Music/breakout.mp3", FMOD_DEFAULT, 0, &sound);
+	loadFileMemory("Resource/Music/breakout.mp3", &buff, &length);
+	memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
+	exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+	exinfo.length = length;
+
+	system->createSound(static_cast<const char*>(buff), FMOD_OPENMEMORY, &exinfo, &sound);
+	free(buff);
+
+
+	system->createDSPByType(FMOD_DSP_TYPE_ECHO, &dsp);
+	dsp->setParameterFloat(FMOD_DSP_ECHO_DELAY, 300);
+	dsp->setParameterFloat(FMOD_DSP_ECHO_FEEDBACK, 20);
+	system->playSound(sound, 0, true, &channel);
+
+	channel->addDSP(0, dsp);
+	channel->setPaused(false);
 
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -80,17 +114,21 @@ int main()
 
 		GLfloat deltaTime = Controler::getInstance()->getDeltaTime();
 
-		Breakout.processInput(deltaTime);
+		//Breakout.processInput(deltaTime);
 
-		Breakout.update(deltaTime);
+		//Breakout.update(deltaTime);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		Breakout.render();
+		//Breakout.render();
 
 		glfwSwapBuffers(window);
 	}
+
+	sound->release();
+	system->close();
+	system->release();
 
 	ResourceManager::clear();
 

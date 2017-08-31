@@ -125,3 +125,23 @@ void calcTangent(glm::vec3 *positions, glm::vec2 *texCoords, glm::vec3 &tangent,
 	tangent = glm::normalize((deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r);
 	bitangent = glm::normalize((deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r);
 }
+
+void loadFileMemory(const char* filename, void **buff, int *length)
+{
+	FILE *file = NULL;
+	fopen_s(&file, filename, "rb");
+
+	fseek(file, 0, SEEK_END);
+	long len = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	void *mem = malloc(len);
+	fread(mem, 1, len, file);
+
+	fclose(file);
+	
+	*buff = mem;
+	*length = len;
+
+	//free(mem);
+}

@@ -555,7 +555,7 @@ void Game::spawnPowerUps(GameObject &block)
 	{
 		this->_powerUps.push_back(PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block._position, ResourceManager::getTexture("powerupSpeed")));
 	}
-	if (shouldSpawn(2))
+	if (shouldSpawn(75))
 	{
 		this->_powerUps.push_back(PowerUp("sticky", glm::vec3(1.0f, 0.5f, 1.0f), 20.0f, block._position, ResourceManager::getTexture("powerupSticky")));
 	}

@@ -14,4 +14,6 @@ GLuint getBufferDataFromFile(const char *filename);
 
 void calcTangent(glm::vec3 *positions, glm::vec2 *texCoords, glm::vec3 &tangent, glm::vec3 &bitangent);
 
+void loadFileMemory(const char* filename, void **buff, int *length);
+
 #endif
