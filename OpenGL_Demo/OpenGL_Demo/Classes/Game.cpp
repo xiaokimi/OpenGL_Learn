@@ -138,7 +138,7 @@ void Game::init()
 
 	effects = new PostProcessor(ResourceManager::getShader("postProcessing"), this->_width, this->_height);
 
-	SoundEngine->loadPlugins("E:/GitHub/OpenGL_Learn/OpenGL_Lib/Libs");
+	//SoundEngine->loadPlugins("E:/GitHub/OpenGL_Learn/OpenGL_Lib/Libs");
 	SoundEngine->play2D("Resource/Music/breakout.mp3", true);
 
 	Text::getInstance()->init("Resource/Fonts/STFANGSO.TTF", 50);

@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGL_Demo", "OpenGL_Demo\OpenGL_Demo.vcxproj", "{8EBF302E-15F3-4D55-9A67-08D337E1834C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbox2d", "OpenGL_Demo\external\Box2D\libbox2d\libbox2d.vcxproj", "{95C6FD49-8509-4B56-914E-0964DD61376D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +17,10 @@ Global
 		{8EBF302E-15F3-4D55-9A67-08D337E1834C}.Debug|Win32.Build.0 = Debug|Win32
 		{8EBF302E-15F3-4D55-9A67-08D337E1834C}.Release|Win32.ActiveCfg = Release|Win32
 		{8EBF302E-15F3-4D55-9A67-08D337E1834C}.Release|Win32.Build.0 = Release|Win32
+		{95C6FD49-8509-4B56-914E-0964DD61376D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{95C6FD49-8509-4B56-914E-0964DD61376D}.Debug|Win32.Build.0 = Debug|Win32
+		{95C6FD49-8509-4B56-914E-0964DD61376D}.Release|Win32.ActiveCfg = Release|Win32
+		{95C6FD49-8509-4B56-914E-0964DD61376D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Classes\AudioManager.h" />
     <ClInclude Include="Classes\BallObject.h" />
     <ClInclude Include="Classes\Camera.h" />
     <ClInclude Include="Classes\Controler.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="Classes\ThirdFunc.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Classes\AudioManager.cpp" />
     <ClCompile Include="Classes\BallObject.cpp" />
     <ClCompile Include="Classes\Camera.cpp" />
     <ClCompile Include="Classes\Controler.cpp" />
@@ -48,6 +50,11 @@
     <ClCompile Include="Classes\Text.cpp" />
     <ClCompile Include="Classes\Texture.cpp" />
     <ClCompile Include="Classes\ThirdFunc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="external\Box2D\libbox2d\libbox2d.vcxproj">
+      <Project>{95c6fd49-8509-4b56-914e-0964dd61376d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8EBF302E-15F3-4D55-9A67-08D337E1834C}</ProjectGuid>
@@ -80,7 +87,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)\..\..\OpenGL_Lib\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\..\..\OpenGL_Lib\Includes;$(ProjectDir)\external;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)\..\..\OpenGL_Lib\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

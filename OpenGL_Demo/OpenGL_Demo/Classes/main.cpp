@@ -25,7 +25,9 @@
 #include "Text.h"
 #include "Game.h"
 #include "ResourceManager.h"
-#include <fmod/fmod.hpp>
+#include "AudioManager.h"
+
+#include <Box2D/Box2D.h>
 
 using namespace std;
 
@@ -33,6 +35,8 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 
 Camera camera;
 Game Breakout(static_cast<GLuint>(WIDTH), static_cast<GLuint>(HEIGHT));
+
+void showFPS(float dt);
 
 int main()
 {
@@ -64,40 +68,34 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	//Breakout.init();
+	Breakout.init();
 
-	FMOD::System *system;
-	FMOD::Sound *sound;
-	FMOD::Channel *channel = 0;
-	
-	void *buff = 0;
-	int length = 0;
-	
-	FMOD_CREATESOUNDEXINFO exinfo;
+	b2Vec2 gravity(0.0f, -10.0f);
+	b2World world(gravity);
 
-	FMOD::DSP *dsp;
-	float frequency = 0;
+	b2BodyDef groundBodyDef;
+	groundBodyDef.position.Set(0.0f, -10.0f);
+	b2Body *groundBody = world.CreateBody(&groundBodyDef);
+	b2PolygonShape groundBox;
+	groundBox.SetAsBox(50.0f, 10.0f);
+	groundBody->CreateFixture(&groundBox, 0.0f);
 
-	FMOD::System_Create(&system);
-	system->init(32, FMOD_INIT_NORMAL, 0);
-	
-	//system->createSound("Resource/Music/breakout.mp3", FMOD_DEFAULT, 0, &sound);
-	loadFileMemory("Resource/Music/breakout.mp3", &buff, &length);
-	memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
-	exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-	exinfo.length = length;
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.position.Set(0.0f, 4.0f);
+	b2Body *body = world.CreateBody(&bodyDef);
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(1.0f, 1.0f);
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
+	fixtureDef.density = 1.0f;
+	fixtureDef.friction = 3.0f;
+	body->CreateFixture(&fixtureDef);
 
-	system->createSound(static_cast<const char*>(buff), FMOD_OPENMEMORY, &exinfo, &sound);
-	free(buff);
+	float32 timeStep = 1.0f / 60.0f;
+	int32 velocityIterations = 6;
+	int32 positionIterations = 2;
 
-
-	system->createDSPByType(FMOD_DSP_TYPE_ECHO, &dsp);
-	dsp->setParameterFloat(FMOD_DSP_ECHO_DELAY, 300);
-	dsp->setParameterFloat(FMOD_DSP_ECHO_FEEDBACK, 20);
-	system->playSound(sound, 0, true, &channel);
-
-	channel->addDSP(0, dsp);
-	channel->setPaused(false);
 
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -106,6 +104,9 @@ int main()
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	//glEnable(GL_DEPTH_TEST);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	float dt = 0.0f;
+	float total = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
 		Controler::getInstance()->update();
@@ -113,6 +114,21 @@ int main()
 		Controler::getInstance()->doMovement();
 
 		GLfloat deltaTime = Controler::getInstance()->getDeltaTime();
+		dt += deltaTime;
+		if (dt >= timeStep)
+		{
+			dt -= timeStep;
+			total += timeStep;
+			world.Step(timeStep, velocityIterations, positionIterations);
+			b2Vec2 position = body->GetPosition();
+			cout << "----------------------" << endl;
+			printf("%4.5f, %4.5f\n", position.x, position.y);
+
+			double tmpy = 4.0 - 5 * (total * total);
+			printf("%4.5f\n", tmpy);
+			cout << "----------------------" << endl;
+		}
+
 
 		//Breakout.processInput(deltaTime);
 
@@ -123,15 +139,21 @@ int main()
 
 		//Breakout.render();
 
+		// Ë¢ÐÂÂÊ
+		showFPS(deltaTime);
+
 		glfwSwapBuffers(window);
 	}
-
-	sound->release();
-	system->close();
-	system->release();
 
 	ResourceManager::clear();
 
 	glfwTerminate();
 	return 0;
+}
+
+void showFPS(float dt)
+{
+	char str[20];
+	sprintf_s(str, 20, "FPS:%d", (int)(1.0 / dt));
+	Text::getInstance()->RenderText(str, glm::vec2(5.0f, 5.0f), glm::vec2(0.5f), glm::vec3(1.0f));
 }
